@@ -6,10 +6,13 @@ jobs:
     steps:
       - name: fetch images from Pages
         run: |
-          set -x
+          fail=0
           for f in heat_main_800 heat_02_800 heat_03_800 heat_04_800 heat_05_800 heat_06_800 heat_07_800; do
             code=$(curl -s -o /dev/null -w "%{http_code}:%{size_download}" --max-time 30 -A "Mozilla/5.0" "https://wangtonia.github.io/ozon-img/ozon/${f}.jpg")
-            echo "RESULT ${f} -> ${code}"
+            echo "RESULT ozon/${f}.jpg -> ${code}"
           done
-          echo "=== raw ==="
-          curl -s -o /dev/null -w "raw %{http_code}:%{size_download}\n" --max-time 30 "https://raw.githubusercontent.com/WangTonia/ozon-img/main/ozon/heat_main_800.jpg"
+          n=0; bad=0
+          for f in $(curl -s --max-time 30 "https://api.github.com/repos/WangTonia/ozon-img/contents/pijian?ref=main" | grep '"name"' | sed 's/.*"name": "//;s/".*//' | head -8); do
+            code=$(curl -s -o /dev/null -w "%{http_code}:%{size_download}" --max-time 30 -A "Mozilla/5.0" "https://wangtonia.github.io/ozon-img/pijian/${f}")
+            echo "RESULT pijian/${f} -> ${code}"
+          done
